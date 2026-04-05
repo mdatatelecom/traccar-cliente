@@ -9,9 +9,14 @@ jobs:
   build:
     runs-on: ubuntu-latest
     env:
-      FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true  # Resolve o aviso do GitHub
+      FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
     steps:
       - uses: actions/checkout@v4
+
+      - name: Create google-services.json
+        run: |
+          mkdir -p environment/google-services
+          echo "${{ secrets.GOOGLE_SERVICES_JSON }}" | base64 -d > environment/google-services/traccar-client-android.json
 
       - name: set up JDK 17
         uses: actions/setup-java@v4
@@ -24,10 +29,10 @@ jobs:
         run: chmod +x gradlew
 
       - name: Build with Gradle
-        run: ./gradlew assembleDebug --stacktrace # Mostra o erro detalhado se falhar
+        run: ./gradlew assembleGoogleDebug --stacktrace
 
       - name: Upload APK
         uses: actions/upload-artifact@v4
         with:
           name: Grs-Gps-App
-          path: app/build/outputs/apk/debug/app-debug.apk
+          path: app/build/outputs/apk/google/debug/app-google-debug.apk
